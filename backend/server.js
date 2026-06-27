@@ -16,6 +16,35 @@ app.get("/", (req, res) => {
   res.json({ message: "Destiny backend is running" });
 });
 
+// test Bungie API connection
+app.get("/api/test-bungie", async (req, res) => {
+  try {
+    if (!BUNGIE_API_KEY) {
+      return res.status(400).json({ error: "BUNGIE_API_KEY not set in .env" });
+    }
+
+    const response = await fetch(
+      "https://www.bungie.net/Platform/Destiny2/",
+      {
+        headers: {
+          "X-API-Key": BUNGIE_API_KEY,
+        },
+      }
+    );
+
+    const data = await response.json();
+
+    res.json({ 
+      success: true, 
+      message: "Successfully connected to Bungie API",
+      responseStatus: data.Response?.ErrorStatus || "OK"
+    });
+  } catch (error) {
+    console.error("Bungie API error:", error);
+    res.status(500).json({ error: "Failed to connect to Bungie API", details: error.message });
+  }
+});
+
 // example Bungie API proxy route
 app.get("/api/search-player", async (req, res) => {
   try {
